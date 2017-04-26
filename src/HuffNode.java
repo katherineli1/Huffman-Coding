@@ -8,8 +8,8 @@
 
 public class HuffNode implements Comparable<HuffNode> {
 
-	public int myValue, myWeight;
-	public HuffNode myLeft, myRight;
+	private int myValue, myWeight;
+	private HuffNode myLeft, myRight;
 
 	/**
 	 * construct leaf node (null children)

@@ -1,11 +1,100 @@
 Name: Peyton Schafer, Katherine Li
 NetID: pas44, kl261
-Hours Spent: Give an exact (decimal) number here
+Hours Spent: 8.0 hours
 Consulted With: NONE
 Resources Used: NONE
 Impressions: n/a
 ----------------------------------------------------------------------
 Problem 1: Describe testing
+Hidden1.txt.hf, hidden2.txt.hf, and mystery.tif.hf:
+HuffProcessor was first tested by running decompress on hidden1.txt.hf, hidden2.txt.hf, and mystery.tif.hf.
+Hidden1.txt.hf went from an original total length of 89 bytes to a new total length of 93 bytes; hidden2.txt.hf
+went from an original total length of 89 bytes to a new total length of 80 bytes; and mystery.tif.hf went from
+an original total length of 193604 bytes to 309388 bytes. By opening and checking the output of the decompressed
+files, it was confirmed that these files were successfully decompressed and ended up using less memory to store
+the information when they were compressed through Huffman (except for hidden2.txt.hf because it is a shorter file
+and thus encoding the Huffman tree for compression/decompression at the beginning of the compressed file outweighs
+the benefit of compressing the file).
+Compress was then run on the decompressed versions of these files and the original compressed files were reproduced
+with the same number of bytes as before, supporting the conclusion that the Huffman decompress and compress functions 
+are functioning properly for small files of different types (txt, tif, etc.).
+
+Kjv10.txt, melville.txt, monarch.tif:
+Since the first three files were rather small, we then ran HuffProcessor on three larger files: kjv10.txt, melville.txt,
+and monarch.tif, compressing the original files and then decompressing the compressed file that was produced. These files
+were then compared to the provided compressed and decompressed versions of the original file to check for accuracy 
+using the Compare tab. Kjv10.txt compressed from an original total length of 4345020 bytes to a new total length of 
+2488864 bytes; melville.txt compressed from an original total length of 101453 bytes to a new total length of 57199
+bytes; and monarch.tif compressed from an original total length of 1179784 bytes to a new total length of 1109295 bytes.
+When the produced compressed files were then decompressed, the new decompressed file lengths were equal to the file 
+length of the original file. Compare confirmed that the decompressed file (following compression and decompression) had 
+the same lengths and no differences in content.
+
+Bluedevil.png, froggy.tif, twain.txt:
+Bluedevil.png was very similar to mystery.tif in that compressing did not decrease the length of the file because of the 
+small size of the file, but it did end up returning the same file after compression and then decompression. Froggy.tif and 
+twain.txt compressed and decompressed without error, returning a file of the same length and composition as the original file. 
+
+-------------------------------------------------------------------------------
+
 Problem 2: Benchmark and analyze your code
+Based on the code, the compression rate and time must depend on file length. In the compress method, given n characters in 
+the file, counting the frequency of each of the characters is O(n) and writing the Huffman tree/ coded data to a file is also 
+O(n), so the runtime of the compress method must depend on the number of characters in the file. The size of the alphabet is 
+much smaller than file length so even though many of the actions performed in the compress method are O(k log k) or O(k) 
+(building priority queue, Huffman tree, and table of codes from the tree), the O(n) runtime overshadows the effects of the 
+O(k) actions. Thus, the compression rate and time also depend on alphabet size, but not as much as they do on file length.
+
+Calgary:
+This hypothesis is supported by empirical data because as the original length of the files in the calgary directory increased,
+the time it took to compress the file also increased. For example, bib had a length of 111261 bytes and a compression time of 
+0.011s, news had a length of 377109 bytes and a compression time of 0.035s, and book1 had a length of 768771 bytes and a 
+compression time of 0.054s. This linear trend between increased file length and increased compression time is also supported
+by the other files in the calgary directory. 
+
+Generally the alphabet size does not have as much of an effect on the compression time of the files because of the effect of 
+file length. For example, in files that have large alphabet sizes like geo, with an alphabet size of 256, the runtime (0.008s) 
+is not significantly faster than files with small alphabet sizes like book2 with an alphabet size of 96 and a runtime of 0.063s.
+This is because book2 has a significantly larger file size (610856 bytes) than geo (102400 bytes) and thus the time required to
+run through all of the characters in the file twice overshadows the fact that the code also depends on the alphabet size.
+
+Waterloo:
+Empirical data from the waterloo directory also supports the hypothesis because the compression time increased as the file length
+increased, but did not change that much depending on the alphabet size. Bird.tif had a file length of 65666 bytes and a compression 
+time of 0.005s, barb.tif had a file length of 262274 bytes and a compression time of 0.022s, and monarch.tif had a file length of 
+1179784 bytes and a compression time of 0.082s. This further supports the linear trend between file length and compression time. 
+
+Alphabet size still does not appear to have as much of an effect on the compression time except maybe for smaller files. For
+example, camera.tif and circles.tif have the same file length of 65666 bytes, but they have slightly different runtimes - camera.tif
+took 0.008s to compress while circles.tif took 0.004s to compress. In this case, camera.tif has an alphabet size of 253 and 
+circles.tif has an alphabet size of 20, thus indicating that while there may be a small effect, by and large the compression rate
+and time is more dependent upon file length than alphabet length.
+
+-------------------------------------------------------------------------------
+
 Problem 3: Text vs. Binary
+Text files compress more than binary (image) files. The files in the calgary (text) folder compress a lot; for example, bib compresses
+from 111261 bytes to 72880 bytes, book1 compresses from 768771 bytes to 438495 bytes, etc. On the other hand, the files in the waterloo 
+(image) folder only compress a little from their original file sizes; for example, barb.tif compresses from 262274 bytes to 245919 bytes, 
+bird.tif compresses from 65666 bytes to 56135 bytes, etc. This is because Huffman compression works by counting the number of times 
+each character occurs in a file and then using fewer bits to encode more frequent characters and more bits to encode less frequent
+characters. Thus, it depends on there being many repeating characters in order to have more compression. In a text file, there are fewer
+combinations of prefixes and characters because of how the English language is structured, and thus the size of the alphabet being used to
+create the Huffman tree is smaller (easier to compress). On the other hand, in a binary image file, everything is coded in a continuous,
+arbitrary sequence of 0's and 1's, which increases the number of possible prefixes/ characters to be placed in the Huffman tree after being
+read in. Thus, text files compress more than binary image files. 
+
+-------------------------------------------------------------------------------
+
 Problem 4: Compressing compressed files
+Compressing an already Huffman compressed file does not achieve much additional compression and could actually make the compressed
+file less memory-efficient. For example, in the waterloo directory, compressing barb.tif.hf again causes a change in file length 
+from 245919 bytes to 246351 bytes, compressing bird.tif.hf again causes a change in file length from 56135 bytes to 56253 bytes, etc.
+Huffman coding is not effective after the first compression because Huffman compresses a file based on how frequently a character 
+occurs in the file. After the first compression though, the algorithm has already optimally compressed the file based on the 
+character frequencies, so compressing again just generates another (most likely identical) Huffman tree that gets stored again 
+in the new compressed file in the header that takes up more memory without actually compressing the file any more (thus compressing
+the same file multiple times could actually increase the file length (as is seen in the waterloo directory files). 
+
+
+

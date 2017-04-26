@@ -32,6 +32,13 @@ public class HuffProcessor {
 	 */
 	public void compress(BitInputStream in, BitOutputStream out){
 		int[] counts = readForCounts(in);
+		
+		int alphabet_size = 0;
+		for (int i : counts) {
+			if (i > 0) alphabet_size += 1;
+		}
+	    System.out.println(alphabet_size);
+		
 	    HuffNode root = makeTreeFromCounts(counts);
 	    String[] codings = makeCodingsFromTree(root, "", new String[257]);
 	    out.writeBits(BITS_PER_INT, HUFF_NUMBER); // write the bits for HUFF_NUMBER
@@ -92,12 +99,12 @@ public class HuffProcessor {
 	public String[] makeCodingsFromTree(HuffNode root, String path, String[] codings) {
 		HuffNode current = root;
 //		String[] codings = new String[257];
-		if (current.myLeft == null && current.myRight == null) {
-			codings[current.myValue] = path; // add path encoding for an index (leaf value) to codings
+		if (current.left() == null && current.right() == null) {
+			codings[current.value()] = path; // add path encoding for an index (leaf value) to codings
 			return codings;
 		}
-		makeCodingsFromTree(current.myLeft, path + 0, codings);
-		makeCodingsFromTree(current.myRight, path + 1, codings);
+		makeCodingsFromTree(current.left(), path + 0, codings);
+		makeCodingsFromTree(current.right(), path + 1, codings);
 		return codings;
 	}
 	
@@ -107,13 +114,13 @@ public class HuffProcessor {
 	 */
 	public void writeHeader(HuffNode root, BitOutputStream out) {
 		HuffNode current = root;
-		if (current.myLeft == null && current.myRight == null) {
+		if (current.left() == null && current.right() == null) {
 			out.writeBits(1, 1);
 			out.writeBits(9, current.value()); // write out value of leaf nodes
 		} else {
 			out.writeBits(1, 0);
-			writeHeader(current.myLeft, out);
-			writeHeader(current.myRight, out);
+			writeHeader(current.left(), out);
+			writeHeader(current.right(), out);
 		}
 	}
 	
@@ -158,7 +165,7 @@ public class HuffProcessor {
 	 */
 	public HuffNode readTreeHeader(BitInputStream in) {
 		int bit = in.readBits(1);
-		if (bit == 1) {
+		if (bit != 0) {
 	    	return new HuffNode(in.readBits(9), 0);
 	    }
 	  	HuffNode left = readTreeHeader(in);
@@ -179,15 +186,17 @@ public class HuffProcessor {
 	  	else {
 	  		while (true) {
 				int bit = in.readBits(1);
-				if (bit == -1) break;
+				if (bit == -1) {
+					throw new HuffException("bad input, no PSEUDO_EOF");
+				}
 				else {
-					if (bit == 0) current = current.myLeft;
-					else current = current.myRight;
-					if (current.myLeft == null && current.myRight == null) {
+					if (bit == 0) current = current.left();
+					else current = current.right();
+					if (current.left() == null && current.right() == null) {
 						if (current.value() == PSEUDO_EOF) break; // stop reading if PSEUDO_EOF is reached
 		                else {
 		                	out.writeBits(8, current.value()); // write out value of leaf node
-		                	current = root;
+		                	current = root; // restart at root
 		                }
 					}
 				}
