@@ -1,11 +1,11 @@
-Name: firstname lastname
-NetID: abc123
+Name: Peyton Schafer, Katherine Li
+NetID: pas44, kl261
 Hours Spent: Give an exact (decimal) number here
-Consulted With: provide names or NetIDs of any students, TAs, or professors you consulted with on the assignment. If you did not consult with anyone, you must explicitly write NONE.
-Resources Used: Any books, papers, or online resources. If you did not use any outside resources, you must explicitly write NONE 
-Impressions: Your answer here
+Consulted With: NONE
+Resources Used: NONE
+Impressions: n/a
 ----------------------------------------------------------------------
 Problem 1: Describe testing
 Problem 2: Benchmark and analyze your code
-Problem 3: Text vs. Binary 
+Problem 3: Text vs. Binary
 Problem 4: Compressing compressed files
